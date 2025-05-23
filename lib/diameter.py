@@ -23,6 +23,7 @@ import pydantic_core
 import xml.etree.ElementTree as ET
 
 class Diameter:
+    peerTypes = ['mme', 'pgw', 'pcscf', 'icscf', 'scscf', 'hss', 'ocs', 'dra', 'smf']
 
     def __init__(self, logTool, originHost: str="hss01", originRealm: str="epc.mnc999.mcc999.3gppnetwork.org", productName: str="PyHSS", mcc: str="999", mnc: str="999", redisMessaging=None):
         with open("../config.yaml", 'r') as stream:
@@ -715,9 +716,7 @@ class Diameter:
         
     def getPeerType(self, originHost: str) -> str:
         try:
-            peerTypes = ['mme', 'pgw', 'pcscf', 'icscf', 'scscf', 'hss', 'ocs', 'dra']
-
-            for peer in peerTypes:
+            for peer in self.peerTypes:
                 if peer in originHost.lower():
                     return peer
             return 'Unknown'
@@ -810,10 +809,9 @@ class Diameter:
     def getConnectedPeersByType(self, peerType: str) -> list:
         try:
             requestedPeerType = peerType.lower()
-            peerTypes = ['mme', 'pgw', 'pcscf', 'icscf', 'scscf', 'hss', 'ocs', 'dra']
             filteredConnectedPeers = []
 
-            if requestedPeerType not in peerTypes:
+            if requestedPeerType not in self.peerTypes:
                 return filteredConnectedPeers
             
             activePeers = self.redisMessaging.getAllHashData(name=self.diameterPeerKey, usePrefix=True, prefixHostname=self.hostname, prefixServiceName='diameter')
